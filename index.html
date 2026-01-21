@@ -1,40 +1,56 @@
 <!DOCTYPE html>
-<html>
+<html lang="tg">
 <head>
+    <meta charset="UTF-8">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        body { margin: 0; font-family: sans-serif; }
-        #reader { height: 30vh; background: #000; } /* 30% боло барои сканер */
-        #product-list { height: 60vh; overflow-y: auto; padding: 10px; } /* 70% поён */
-        .item { display: flex; justify-content: space-between; border-bottom: 1px solid #ccc; padding: 10px; }
-        .confirm-btn { position: fixed; bottom: 10px; right: 10px; padding: 15px; background: green; color: white; border-radius: 50%; }
+        body { margin: 0; padding: 0; font-family: sans-serif; background: #f4f4f4; }
+        /* 30% боло барои Сканер */
+        #scanner-container { height: 35vh; background: #000; position: relative; }
+        /* 70% поён барои Рӯйхат */
+        #data-container { height: 65vh; padding: 15px; overflow-y: auto; background: white; border-top-left-radius: 20px; border-top-right-radius: 20px; margin-top: -20px; position: relative; }
+        .product-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
+        .controls { display: flex; align-items: center; gap: 10px; }
+        .btn { padding: 5px 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-plus { background: #28a745; color: white; }
+        .btn-minus { background: #dc3545; color: white; }
+        .confirm-btn { position: fixed; bottom: 20px; right: 20px; background: #007bff; color: white; border: none; padding: 15px 25px; border-radius: 30px; font-size: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
     </style>
 </head>
 <body>
-    <div id="reader"></div>
-    <div id="product-list">
-        <h3>Маҳсулоти сканишуда:</h3>
-        <div id="items"></div>
+    <div id="scanner-container">
+        <div id="reader"></div>
     </div>
-    <button class="confirm-btn" onclick="sendToBot()">✅</button>
+    <div id="data-container">
+        <h3>🛒 Сабади фурӯш:</h3>
+        <div id="items-list"></div>
+    </div>
+    <button class="confirm-btn" onclick="finishSale()">✅ Тасдиқ</button>
 
     <script>
         let tg = window.Telegram.WebApp;
-        let scannedItems = [];
+        tg.expand(); // Саҳифаро калон мекунад
 
         function onScanSuccess(decodedText) {
-            // Вақте сканер кодкушоӣ кард, маҳсулотро илова мекунем
-            scannedItems.push(decodedText);
-            document.getElementById('items').innerHTML += `<div class="item">${decodedText} <span>1 дона</span></div>`;
+            const list = document.getElementById('items-list');
+            const itemHtml = `
+                <div class="product-item">
+                    <div><b>${decodedText}</b><br><small>Нарх: 10 сомон</small></div>
+                    <div class="controls">
+                        <button class="btn btn-minus">-</button>
+                        <span>1</span>
+                        <button class="btn btn-plus">+</button>
+                    </div>
+                </div>`;
+            list.innerHTML += itemHtml;
         }
 
-        let html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+        let html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 200 });
         html5QrcodeScanner.render(onScanSuccess);
 
-        function sendToBot() {
-            // Тасдиқи фурӯш ва фиристодан ба бот
-            tg.sendData(scannedItems.join(", "));
+        function finishSale() {
+            tg.sendData("Фурӯши маҳсулот иҷро шуд"); // Маълумотро ба бот мефиристад
             tg.close();
         }
     </script>
