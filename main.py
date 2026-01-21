@@ -1,29 +1,30 @@
-import telebot
-from telebot import types
 import os
-import json
-import telebot
+import logging
+import pandas as pd
+from aiogram import Bot, Dispatcher, types
+from aiogram.utils import executor
 
-# Токени худро маҳз дар ин ҷо, байни нохунакҳо гузоред
-TOKEN = '8560757080:AAFXJLy71LZTPKMmCiscpe1mWKmj3lC-hDE' 
-bot = telebot.TeleBot(TOKEN)
+# Токенро аз GitHub Secrets мегирем
+TOKEN = os.getenv("BOT_TOKEN")
+bot = Bot(token=TOKEN)
+dp = Dispatcher(bot)
 
-@bot.message_handler(commands=['start'])
-def start(message):
-    bot.reply_to(message, "Бот кор кард!")
-
-bot.infinity_polling()
-
-@bot.message_handler(commands=['start'])
-def start(message):
+@dp.message_handler(commands=['start'])
+async def start(message: types.Message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    web_app = types.WebAppInfo(url=URL)
-    markup.add(types.KeyboardButton("📷 Сканер", web_app=web_app))
-    bot.send_message(message.chat.id, "Хуш омадед! Барои фурӯш 'Сканер'-ро пахш кунед:", reply_markup=markup)
+    # Иваз кунед ба URL-и GitHub Pages-и худ
+    web_app = types.WebAppInfo(url="https://yourusername.github.io/your-repo/")
+    markup.add(types.KeyboardButton("🔍 Сканер", web_app=web_app))
+    markup.add("📊 Ҳисобот", "📦 Қабули бор")
+    await message.answer("Хуш омадед! Тугмаро пахш кунед:", reply_markup=markup)
 
-@bot.message_handler(content_types=['web_app_data'])
-def web_app(message):
-    data = json.loads(message.web_app_data.data)
-    bot.send_message(message.chat.id, f"Фурӯхта шуд: {data}")
+@dp.message_handler(content_types=['document'])
+async def handle_excel(message: types.Message):
+    file_id = message.document.file_id
+    file = await bot.get_file(file_id)
+    await bot.download_file(file.file_path, "stock.xlsx")
+    df = pd.read_excel("stock.xlsx")
+    await message.answer(f"Склад нав шуд! {len(df)} намуд мол илова шуд.")
 
-bot.infinity_polling()
+if __name__ == '__main__':
+    executor.start_polling(dp, skip_updates=True)
