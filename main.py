@@ -5,7 +5,7 @@ import json
 
 TOKEN = '8560757080:AAFXJLy71LZTPKMmCiscpe1mWKmj3lC-hDE'
 # Ссылкаи GitHub Pages-и шумо (баъди фаъол кардан)
-URL = f"https://{os.getenv('GITHUB_REPOSITORY_OWNER')}.github.io/magoza-bot/"
+URL = "https://oson-savdo.github.io/magoza-bot/"
 
 bot = telebot.TeleBot(TOKEN)
 
