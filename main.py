@@ -2,12 +2,17 @@ import telebot
 from telebot import types
 import os
 import json
+import telebot
 
-TOKEN = '8560757080:AAFXJLy71LZTPKMmCiscpe1mWKmj3lC-hDE'
-# Ссылкаи GitHub Pages-и шумо (баъди фаъол кардан)
-URL = "https://oson-savdo.github.io/magoza-bot/"
-
+# Токени худро маҳз дар ин ҷо, байни нохунакҳо гузоред
+TOKEN = '8560757080:AAFXJLy71LZTPKMmCiscpe1mWKmj3lC-hDE' 
 bot = telebot.TeleBot(TOKEN)
+
+@bot.message_handler(commands=['start'])
+def start(message):
+    bot.reply_to(message, "Бот кор кард!")
+
+bot.infinity_polling()
 
 @bot.message_handler(commands=['start'])
 def start(message):
